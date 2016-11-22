@@ -1,0 +1,309 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+	</style>
+  </head>
+  <body>
+  
+	<script type="text/javascript" src="packages/d3/d3-4.1.1.min.js"></script>
+	<script type="text/javascript" src="packages/interactjs/interact-1.2.6.min.js"></script>
+ 
+    <script>
+	
+		// *** INITIALIZE VARIABLES ***
+
+		// List of Possible Shapes
+		var shapes = {
+			'p_lion': {'name': 'Lion', 'grid': 0, 'box': ''},
+			'p_pig': {'name': 'Pig', 'grid': 0, 'box': ''},
+			'p_wolf': {'name': 'Wolf', 'grid': 0, 'box': ''},
+			'p_fox': {'name': 'Fox', 'grid': 0, 'box': ''}	
+		};
+		
+		// FUNCTION: CREATE GRID OF BOXES
+		function createBoxes(bNumber, bSize, nCols){
+		
+			var boxes = [];
+			var jj = 0, kk=0;
+			
+			for(var ii=0; ii < bNumber; ii++){
+			
+				if(ii >= (kk+1)*nCols){
+					jj = 0;
+					kk += 1;
+				}
+
+				var x = bSize * jj;
+				var y = bSize * kk;
+				
+				jj += 1;
+				
+				boxes.push(
+					{
+						'rx': x,
+						'ry': y,
+						'height': bSize,
+						'width': bSize,
+						'fill': 'none',
+						'stroke': 'black',
+						'stroke_width': 2,
+						'text': String(ii),
+						'font_size': bSize/2
+					}
+				)
+			}
+
+			return boxes;
+			
+		}
+
+		// FUNCTION: Get Shape Box on Event
+		function getShapeBox(event){
+			var center = getCenter(event.target);
+			var classes_str = event.target.getAttribute('class').split(' ');
+			var ii = classes_str.indexOf("draggable");
+			if(ii != -1) {
+				classes_str.splice(ii, 1);
+			}
+			var shape_class = classes_str[0];
+			var idx_match = checkAllGridBoxes(center);
+			if(idx_match != null){
+				shapes[shape_class].grid = 1;
+				shapes[shape_class].box = getGridBoxText(idx_match);
+			}else{
+				shapes[shape_class].grid = 0;
+				shapes[shape_class].box = '';
+			}
+			updateTextOutput();
+		}
+			
+		// FUNCTION: Move Lister on Drag Event
+		function dragMoveListener (event) {
+			var target = event.target,
+				x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+				y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+			target.style.webkitTransform =
+			target.style.transform =
+			  'translate(' + x + 'px, ' + y + 'px)';
+			target.setAttribute('data-x', x);
+			target.setAttribute('data-y', y);
+		}
+	
+		// FUNCTION: Get Center XY of Target
+		function getCenter(target){	
+			var bbox = target.getBoundingClientRect();
+			var center = {
+				x: bbox.left + bbox.width/2,
+				y: bbox.top  + bbox.height/2
+			};
+			return center;
+		}
+		
+		// FUNCTION: Get Index Match of Grid Box at Center XY
+		function checkAllGridBoxes(center){
+			var idx_match = null;
+			d3.selectAll('.grid-box').each(function(d,ii) { 
+				var insideBBox = checkBoundingBox(center, this)
+				if(insideBBox){
+					idx_match = ii;
+				}
+			});
+			return idx_match;
+		}
+		
+		// FUNCTION: Get Text of Grid Box by Index
+		function getGridBoxText(idx){
+			var grid_box_text = [];
+			d3.selectAll('.grid-box').each(function(d,ii) { 
+				grid_box_text.push(d);
+			})
+			var txt = grid_box_text[idx].text;
+			return txt;
+		}
+		
+		// FUNCTION: Check If Center XY Within Target Bounding Box
+		function checkBoundingBox(center, target){
+			var bbox = target.getBoundingClientRect();
+			var withinX = center.x > bbox.left & center.x < (bbox.left + bbox.width);
+			var withinY = center.y > bbox.top & center.y < (bbox.top + bbox.height);
+			if(withinX & withinY){
+				insideBBox = 1;
+			}else{
+				insideBBox = 0;
+			}
+			return insideBBox;
+		}
+		
+		// FUNCTION: Update Text Output w/ Shape Name & Grid Box Number
+		function updateTextOutput(){
+			var txt_output = [];
+			var shape_keys = Object.keys(shapes);
+			for(var ii = 0; ii < shape_keys.length; ii ++){
+				if(shapes[shape_keys[ii]].box){
+					var txt = shapes[shape_keys[ii]].name + ' : ' + shapes[shape_keys[ii]].box;
+					txt_output.push(txt);
+				}
+			}
+			var el = document.getElementById('txt_output');
+			el.textContent = txt_output.join(' , ');
+		}
+
+		// *** CODE *** //
+		
+		// DEFINE GRID 
+		
+		var bNumber = 9;	// Number of Grid Boxes
+		var bSize = 100;	// Grid Box Width (px)
+
+		// Get Number of Rows & Columns
+		var nRows = Math.floor(Math.sqrt(bNumber));
+		var nCols = Math.floor(bNumber/nRows);
+		// Define Grid Height/Weight
+		var grid_hw = Math.max(nRows, nRows) * bSize;
+		// Define Shapes Panel Width
+		var panel_w = 100;
+
+		// Create Boxes Array
+		var boxes = createBoxes(bNumber, bSize, nCols);
+	
+		// CREATE CONTAINER
+
+		// Add SVG Container to Body
+		var cContainer = d3.select("body").append("svg")
+			.classed("container", true)
+			.attr("width", grid_hw + panel_w)
+			.attr("height", grid_hw)
+
+		// Add SVG Group to Container for Grid	
+		var cGrid = d3.select(".container").append("svg:g")
+			.classed("grid", true)
+			.attr("width", grid_hw)
+			.attr("height", grid_hw)
+
+		// Add Grid Boxes
+		cGrid.selectAll('rect').data(boxes)
+		.enter()
+		.append("rect")
+			.classed("grid-box", true)
+			.attr("x", function(d){return(d.rx)})
+			.attr("y", function(d){return(d.ry)})
+			.attr("width", function(d){return(d.width)}) 
+			.attr("height", function(d){return(d.height)})
+			.style("fill", function(d){return(d.fill)})
+			.style("stroke", function(d){return(d.stroke)})
+			.style("stroke-width", function(d){return(d.stroke_width)});
+		
+		// Add Text # to Grid Boxes	
+		cGrid.selectAll('text').data(boxes)
+		.enter()
+		.append("text")
+			.classed("grid-box-text", true)
+			.attr("x", function(d){return(d.rx + d.height/2)})
+			.attr("y", function(d){return(d.ry + d.height/2)})
+			.attr("dy", ".35em")
+			.style("font-size", function(d){return(d.font_size)})
+			.text(function(d){return(d.text)})
+			.style("text-anchor", "middle");
+
+		// CREATE SHAPES
+
+		// Define Shape Size (Height/Width, px)
+		var shape_size = 75;
+
+		// SVG Definition for Shape Image (Pattern)
+		var iDefs = cContainer.append('svg:defs')
+			.append("svg:pattern")
+			    .attr("id", "grump_avatar")
+			    .attr("width", shape_size)
+			    .attr("height", shape_size)
+			    .attr("patternUnits", "userSpaceOnUse")
+		    .append("svg:image")
+			    .attr("xlink:href", 'images/lion.png')
+			    .attr("width", shape_size)
+			    .attr("height", shape_size)
+			    .attr("x", 0)
+			    .attr("y", 0);
+
+		// Create Shapes Container
+		var cShapes = d3.select(".container").append("svg:g")
+			.attr("width", panel_w)
+			.attr("height", grid_hw);
+		
+		// Create Shape Container Rectangle
+		var dRect = cShapes.append("rect")
+			.attr("x", grid_hw)
+			.attr("y", 0)
+			.attr("width", panel_w) 
+			.attr("height", grid_hw)
+		    .style("fill", 'none')
+
+		// CREATE ANIMAL PIECES
+
+		// Set Shape Panel Width
+		var p_w = 75;
+			
+		// XY Location for Animal Piece 1
+		var x1 = grid_hw + (panel_w-p_w)/2;
+		var y1 = 0*bSize + (bSize-p_w)/2;
+		// Create Animal Piece 1
+		p_lion = cShapes.append("image")
+			.classed("p_lion", true)
+			.classed("draggable", true)
+			.attr("x", x1)
+			.attr("y", y2)
+			.attr("width", p_w) 
+			.attr("height", p_w)
+			.attr("xlink:href", 'images/lion.png')
+
+		// XY Location for Animal Piece 2
+		var x2 = x1;
+		var y2 = 1*bSize + (bSize-p_w)/2;
+		// Create Animal Piece 2
+		p_fox = cShapes.append("image")
+			.classed("p_fox", true)
+			.classed("draggable", true)
+			.attr("x", x2)
+			.attr("y", y2)
+			.attr("width", p_w) 
+			.attr("height", p_w)
+			.attr("xlink:href", 'images/fox.png')
+
+		// XY Location for Animal Piece 3
+		var x3 = x1;
+		var y3 = 2*bSize + (bSize-p_w)/2;
+		// Create Animal Piece 3
+		p_pig = cShapes.append("image")
+			.classed("p_pig", true)
+			.classed("draggable", true)
+			.attr("x", x3)
+			.attr("y", y3)
+			.attr("width", p_w) 
+			.attr("height", p_w)
+			.attr("xlink:href", 'images/pig.png')
+		
+		// DRAGGING
+
+		// Initialize Draggle Class Elements w/ InteractJS
+		interact('.draggable')
+		  .draggable({
+		    inertia: false,
+		    restrict: {
+		      restriction: ".container",
+		      endOnly: true
+		    },
+		    autoScroll: true,
+		    onstart: function(event) { 
+			    event.target.parentNode.appendChild(event.target); 
+			},
+		    onmove: dragMoveListener,
+		    onend: getShapeBox
+		  });
+
+		window.dragMoveListener = dragMoveListener;
+
+	</script>
+	
+	<span id="txt_output"></span>
+  </body>
+</html> 

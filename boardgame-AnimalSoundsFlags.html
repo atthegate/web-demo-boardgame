@@ -1,0 +1,429 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  	<link rel="stylesheet" href="packages/flag-icon-css-master/css/flag-icon.css">
+    <style>
+	</style>
+  </head>
+  <body>
+  
+	<script type="text/javascript" src="packages/d3/d3-4.1.1.min.js"></script>
+	<script type="text/javascript" src="packages/interactjs/interact-1.2.6.min.js"></script>
+	<script type="text/javascript" src="packages/howlerjs/howler-2.0.1.min.js"></script>
+	
+    <script>
+	
+		// *** INITIALIZE VARIABLES ***
+
+		// List of Possible Shapes
+		var shapes = {
+			'p_lion': {'name': 'Lion', 'grid': 0, 'box': ''},
+			'p_pig': {'name': 'Pig', 'grid': 0, 'box': ''},
+			'p_wolf': {'name': 'Wolf', 'grid': 0, 'box': ''},
+			'p_fox': {'name': 'Fox', 'grid': 0, 'box': ''},
+			'p_bee': {'name': 'Bee', 'grid': 0, 'box': ''},
+			'p_bird': {'name': 'Bird', 'grid': 0, 'box': ''}	
+		};
+		
+		// List of Flags (Order of Grid)
+		var flags = ['flag-fr','flag-gb','flag-de','flag-jp','flag-kr','flag-es','flag-sy','flag-tw','flag-ae']; 
+
+		// List of Languages by Flag
+		var languages = {
+			'flag-be': 'belgian',
+			'flag-gb': 'english',
+			'flag-de': 'german',
+			'flag-jp': 'japanese',
+			'flag-kr': 'korean',
+			'flag-es': 'spanish_basque',
+			'flag-sy': 'syrian',
+			'flag-tw': 'taiwanese',
+			'flag-ae': 'arabic' 	
+		}
+
+		// *** DEFINE FUNCTIONS ***
+
+		// FUNCTION: Create Array of Boxes
+		function createBoxes(bNumber, bSize, nCols){
+		
+			var boxes = [];
+
+			var jj = 0, kk=0;
+			
+			for(var ii=0; ii < bNumber; ii++){
+			
+				if(ii > (kk+1)*nCols-1){
+					jj = 0;
+					kk += 1;
+				}
+
+				var x = bSize * jj;
+				var y = bSize * kk;
+				
+				jj += 1;
+				
+				boxes.push(
+					{
+						'rx': x,
+						'ry': y,
+						'height': bSize,
+						'width': bSize,
+						'fill': 'none',
+						'stroke': 'black',
+						'stroke_width': 2,
+						'text': String(ii),
+						'font_size': bSize/3,
+						'flag': flags[ii]
+					}
+				)
+			}
+			
+			return boxes;
+			
+		}
+
+		// FUNCTION: Get Shape Box on Event
+		function getShapeBox(event){
+		
+			var center = getCenter(event.target);
+			var classes_str = event.target.getAttribute('class').split(' ');
+			var ii = classes_str.indexOf("draggable");
+			if(ii != -1) {
+				classes_str.splice(ii, 1);
+			}
+			var shape_class = classes_str[0];
+			
+			var idx_match = checkAllGridBoxes(center);
+			
+			if(idx_match != null){
+				shapes[shape_class].grid = 1;
+				shapes[shape_class].box = getGridBoxText(idx_match);
+				var animal = shapes[shape_class].name;
+				var language = languages[flags[idx_match]];
+				var file_mp3 = animal.toLowerCase() + '_' + language + '.mp3';
+				playAnimalSound(file_mp3);
+
+			}else{
+				shapes[shape_class].grid = 0;
+				shapes[shape_class].box = '';
+			}
+			
+		}
+			
+		// FUNCTION: Move Lister on Drag Event
+		function dragMoveListener (event) {
+			var target = event.target,
+				// keep the dragged position in the data-x/data-y attributes
+				x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+				y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+			target.style.webkitTransform =
+			target.style.transform =
+			  'translate(' + x + 'px, ' + y + 'px)';
+			target.setAttribute('data-x', x);
+			target.setAttribute('data-y', y);
+		}
+
+		// FUNCTION: Get Center XY of Target
+		function getCenter(target){	
+			var bbox = target.getBoundingClientRect();
+			var center = {
+				x: bbox.left + bbox.width/2,
+				y: bbox.top  + bbox.height/2
+			};
+			return center;
+		}
+		
+		// FUNCTION: Get Index Match of Grid Box at Center XY
+		function checkAllGridBoxes(center){
+			var idx_match = null;
+			d3.selectAll('.grid-box').each(function(d,ii) { 
+				var insideBBox = checkBoundingBox(center, this)
+				if(insideBBox){
+					idx_match = ii;
+				}
+			});
+			return idx_match;
+		}
+		
+		// FUNCTION: Get Text of Grid Box by Index
+		function getGridBoxText(idx){
+			var grid_box_text = [];
+			d3.selectAll('.grid-box').each(function(d,ii) { 
+				grid_box_text.push(d);
+			})
+			var txt = grid_box_text[idx].text;
+			return txt;
+		}
+
+		// FUNCTION: Check If Center XY Within Target Bounding Box
+		function checkBoundingBox(center, target){
+			var bbox = target.getBoundingClientRect();
+			var withinX = center.x > bbox.left & center.x < (bbox.left + bbox.width);
+			var withinY = center.y > bbox.top & center.y < (bbox.top + bbox.height);
+			if(withinX & withinY){
+				insideBBox = 1;
+			}else{
+				insideBBox = 0;
+			}
+			return insideBBox;
+		}
+		
+		// FUNCTION: Play Animal Sound By Filename
+		function playAnimalSound(file_sound){
+			var sound = new Howl({
+				src: ['sounds/' + file_sound]
+			}).play();
+		}
+		
+		// *** CODE *** //
+		
+		var bNumber = 9;	// Number of Grid Boxes
+		var bSize = 100;	// Grid Box Width (px)
+
+		// Get Number of Rows & Columns
+		var nRows = Math.floor(Math.sqrt(bNumber));
+		var nCols = Math.floor(bNumber/nRows);
+		// Define Grid Height/Weight
+		var grid_hw = Math.max(nRows, nRows) * bSize;
+		// Define Shapes Panel Width
+		var panel_w = 100;
+
+		// Create Boxes Array
+		var boxes = createBoxes(bNumber, bSize, nCols);
+	
+		// CREATE CONTAINER & GRID
+
+		var cContainer = d3.select("body").append("svg")
+			.classed("container", true)
+			.attr("width", grid_hw + panel_w)
+			.attr("height", grid_hw)
+
+		var cGrid = d3.select(".container").append("svg:g")
+			.classed("grid", true)
+			.attr("width", grid_hw)
+			.attr("height", grid_hw)
+
+		// CREATE FLAG PATTERNS
+
+		var defs = cGrid.append('defs');
+		defs.append('pattern')
+		    .attr('id', 'flag-fr')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/fr.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-gb')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/gb.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-de')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/de.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-jp')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/jp.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-kr')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/kr.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-es')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/es.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-sy')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/sy.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-tw')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/tw.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		defs.append('pattern')
+		    .attr('id', 'flag-ae')
+		    .attr('patternUnits', 'userSpaceOnUse')
+		    .attr('width', bSize)
+		    .attr('height', bSize)
+		  .append('svg:image')
+		    .attr('xlink:href', 'packages/flag-icon-css-master/flags/1x1/ae.svg')
+		    .attr("width", bSize)
+		    .attr("height", bSize)
+		    .attr("x", 0)
+		    .attr("y", 0);
+
+		// CREATE GRID BOXES  
+
+		cGrid.selectAll('rect').data(boxes)
+		.enter()
+		.append("rect")
+			.classed("grid-box", true)
+			.attr("x", function(d){return(d.rx)})
+			.attr("y", function(d){return(d.ry)})
+			.attr("width", function(d){return(d.width)}) 
+			.attr("height", function(d){return(d.height)})
+			.style("fill", function(d){return('url(#' + d.flag + ')')})
+			.style("stroke", function(d){return(d.stroke)})
+			.style("stroke-width", function(d){return(d.stroke_width)});
+
+		// CREATE ANIMAL SHAPES
+
+		var config = {
+		    "avatar_size" : 75
+		}
+
+		var iDefs = cContainer.append('svg:defs')
+			.append("svg:pattern")
+			    .attr("id", "grump_avatar")
+			    .attr("width", config.avatar_size)
+			    .attr("height", config.avatar_size)
+			    .attr("patternUnits", "userSpaceOnUse")
+		    .append("svg:image")
+			    .attr("xlink:href", 'images/lion.png')
+			    .attr("width", config.avatar_size)
+			    .attr("height", config.avatar_size)
+			    .attr("x", 0)
+			    .attr("y", 0);
+
+		var cShapes = d3.select(".container").append("svg:g")
+			.attr("width", panel_w)
+			.attr("height", grid_hw);
+			
+		var dRect = cShapes.append("rect")
+			.attr("x", grid_hw)
+			.attr("y", 0)
+			.attr("width", panel_w) 
+			.attr("height", grid_hw)
+		    .style("fill", 'none')
+
+		// CREATE ANIMAL PIECES
+
+		// Animal Panel Width
+		var p_w = 75;
+		
+		// XY Location of Animal Piece 1	
+		var x1 = grid_hw + (panel_w-p_w)/2;
+		var y1 = 0*bSize + (bSize-p_w)/2;
+		// Create Animal Piece 1
+		p_bee = cShapes.append("image")
+			.classed("p_bee", true)
+			.classed("draggable", true)
+			.attr("x", x1)
+			.attr("y", y2)
+			.attr("width", p_w) 
+			.attr("height", p_w)
+			.attr("xlink:href", 'images/bee.png')
+
+		// XY Location of Animal Piece 2
+		var x2 = x1;
+		var y2 = 1*bSize + (bSize-p_w)/2;
+		// Create Animal Piece 2
+		p_bird = cShapes.append("image")
+			.classed("p_bird", true)
+			.classed("draggable", true)
+			.attr("x", x2)
+			.attr("y", y2)
+			.attr("width", p_w) 
+			.attr("height", p_w)
+			.attr("xlink:href", 'images/bird.png')
+
+		// XY Location of Animal Piece 3
+		var x3 = x1;
+		var y3 = 2*bSize + (bSize-p_w)/2;
+		// Create Animal Piece 3
+		p_pig = cShapes.append("image")
+			.classed("p_pig", true)
+			.classed("draggable", true)
+			.attr("x", x3)
+			.attr("y", y3)
+			.attr("width", p_w) 
+			.attr("height", p_w)
+			.attr("xlink:href", 'images/pig.png')
+
+		// DRAGGING
+
+		// Initialize Draggle Class Elements w/ InteractJS
+		interact('.draggable')
+		  .draggable({
+		    inertia: false,
+		    restrict: {
+		      restriction: ".container",
+		      endOnly: true
+		    },
+		    autoScroll: true,
+		    onstart: function(event) { 
+			    event.target.parentNode.appendChild(event.target); 
+			},
+		    onmove: dragMoveListener,
+		    onend: getShapeBox
+		  });
+
+		window.dragMoveListener = dragMoveListener;
+	
+	</script>
+	
+	<span id="txt_output"></span>
+  </body>
+</html> 

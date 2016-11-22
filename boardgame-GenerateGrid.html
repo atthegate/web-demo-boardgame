@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+    	body {
+    		margin: 0px;
+    	}
+	</style>
+  </head>
+  <body>
+  
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.1/d3.min.js"></script>
+ 
+    <script>
+	
+		// *** DEFINE FUNCTIONS ***
+
+		// FUNCTION: Get XY Dimensions of Window
+		function getXY(){
+			var w = window,
+		    d = document,
+		    e = d.documentElement,
+		    g = d.getElementsByTagName('body')[0],
+		    x = w.innerWidth || e.clientWidth || g.clientWidth,
+		    y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+			return {'x': x, 'y': y}
+		}
+
+		// FUNCTION: Create Array of Boxes
+		function createBoxes(bNumber){
+		
+			var boxes = [];
+			var jj = 0, kk=0;
+			
+			for(var ii=0; ii < bNumber; ii++){
+			
+				if(ii > (kk+1)*nCols-1){
+					jj = 0;
+					kk += 1;
+				}
+
+				var x = bSize * jj;
+				var y = bSize * kk;
+				
+				jj += 1;
+				
+				boxes.push(
+					{
+						'rx': x,
+						'ry': y,
+						'height': bSize,
+						'width': bSize,
+						'fill': 'none',
+						'stroke': 'black',
+						'stroke_width': 2,
+						'text': String(ii),
+						'font_size': bSize/3
+					}
+				)
+			}
+			
+			return boxes;
+			
+		}
+		
+		// *** GENERATE BOXES *** //
+
+		// Get Random Number of Boxes
+		var bNumber = Math.floor(Math.random() * (3000 - 1 + 1)) + 1;
+		
+		// Get XY Dimensions of Window
+		var xy = getXY();
+
+		// Get Number of Rows & Columns
+		var nRows = Math.floor(Math.sqrt(bNumber));
+		var nCols = Math.floor(bNumber/nRows);
+
+		// Get Size of Individual Box (fit to width=nCols)
+		var bSize = xy['x']/nCols;
+
+		// Get Boxes Object [Array + ]
+		var boxes = createBoxes(bNumber, xy);
+
+		//Make an SVG Container
+		var svgContainer = d3.select("body").append("svg")
+										 .attr("width", nCols*bSize)
+										 .attr("height", nRows*bSize);
+
+		// Fill SVG Container w/ Boxes
+		svgContainer.selectAll('rect').data(boxes)
+		.enter()
+		.append("rect")
+			.attr("x", function(d){return(d.rx)})
+			.attr("y", function(d){return(d.ry)})
+			.attr("width", function(d){return(d.width)}) 
+			.attr("height", function(d){return(d.height)})
+			.style("fill", function(d){return(d.fill)})
+			.style("stroke", function(d){return(d.stroke)})
+			.style("stroke-width", function(d){return(d.stroke_width)});
+			
+		// Fill SVG Boxes w/ Text
+		svgContainer.selectAll('text').data(boxes)
+		.enter()
+		.append("text")
+			.attr("x", function(d){return(d.rx + d.height/2)})
+			.attr("y", function(d){return(d.ry + d.height/2)})
+			.attr("dy", ".35em")
+			.style("font-size", function(d){return(d.font_size)})
+			.text(function(d){return(d.text)})
+			.style("text-anchor", "middle");
+		
+	</script>
+	
+  </body>
+</html> 
