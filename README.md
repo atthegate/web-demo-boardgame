@@ -50,5 +50,11 @@ Next, the SimpleShapes demo was extended to replace the simple shapes with PNG i
 
 <img src="screenshots/screenshot_boardgame-AnimalSoundsFlags.png" height="250">
 
-Finally, the AnimalShapes demo was extended to include (i) country flags instead of numbers identifying each grid box and (ii) triggered audio of the various animal/language combinations.
+Finally, the AnimalShapes demo was extended to include (i) country flags instead of numbers identifying each grid box and (ii) triggered audio of the various animal/language combinations. 
+
+In order to generate a set of different animal/language sounds, the MP3 files from the ESL-Language Animal Sounds webpage were downloaded via a custom Python script, <code>python/downloadAnimalSounds.py</code> (The full set of these MP3 files can be found in the <code>python/downloads</code> folder).
+
+Country flags corresponding to the available animals/languages (e.g. Belgian, German, Syrian, etc) were then added to the grid box background images uses SVG flag icons from <a href="https://github.com/lipis/flag-icon-css">https://github.com/lipis/flag-icon-css</a>.
+
+Using the "what-piece-in-what-space" functionality from before, it was then easy to play the MP3 of the animal/language combination when an animal piece is placed in a flag box (using <a href="https://howlerjs.com/">howler.js</a>). <i>NOTE: Playing MP3 files using howler.js will trigger CORS errors if the web demo is being viewed locally, however howler.js will fall back on HTML audio to play anyway; to avoid CORS issues, simply run the web demo on a local server via Python or other method.</i>
 
