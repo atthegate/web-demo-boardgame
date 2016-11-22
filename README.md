@@ -24,8 +24,31 @@ In brainstorming a physical boardgame (still in the works), I found it difficult
 
 <h1>1. Generate a Boardgame Grid</h1>
 
-The first step was to make an SVG-based boardgame grid generator. 
+The first step was to make an SVG-based boardgame grid generator using D3. A random number of grid boxes (0-3000) are generated to fill up the window width. On each page refresh, a new grid is generated. 
+
+Sample Grids
 
 <img src="screenshots/screenshot_boardgame-GenerateGrid-1.png" height="250">
 
 <img src="screenshots/screenshot_boardgame-GenerateGrid-2.png" height="250">
+
+The envisioned boardgame would have a static number of grid boxes, but the concept of a dynamically generated grid was interesting and explored out of curiousity. 
+
+<h1>2. Drag-and-drop Objects (Game Pieces) onto the Grid</h1>
+
+<img src="screenshots/screenshot_boardgame-SimpleShapes.png" height="250">
+
+Taking the concept of a grid generator, a static "game board" grid of 9 boxes was created. Then, a side panel of 3 shape "pieces" was added. The shapes were given interactive 'draggable' features using the <a href="http://interactjs.io/">interact.js</a> library and allowed to be dragged onto the game board. Then, a simple text output highlighting what piece(s) are on what grid box was included. This "what-piece-in-what-space" identification is crucial for future functionality of the board game concept.
+
+<h1>3. Use Animal Shapes for Game Pieces</h1>
+
+<img src="screenshots/screenshot_boardgame-AnimalShapes.png" height="250">
+
+Next, the SimpleShapes demo was extended to replace the simple shapes with PNG images of animal silhouettes. This extra step is somewhat complicated due to using SVG shapes, specifically the need to use pattern definitions in order to set images as backgrounds of SVG shapes.
+
+<h1>4. Add Country Flags and Animal Sounds</h1>
+
+<img src="screenshots/screenshot_boardgame-AnimalSoundsFlags.png" height="250">
+
+Finally, the AnimalShapes demo was extended to include (i) country flags instead of numbers identifying each grid box and (ii) triggered audio of the various animal/language combinations.
+
