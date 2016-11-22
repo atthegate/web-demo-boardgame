@@ -56,7 +56,19 @@ In order to generate a set of different animal/language sounds, the MP3 files fr
 
 Country flags corresponding to the available animals/languages (e.g. Belgian, German, Syrian, etc) were then added to the grid box background images uses SVG flag icons from <a href="https://github.com/lipis/flag-icon-css">https://github.com/lipis/flag-icon-css</a>.
 
-Using the "what-piece-in-what-space" functionality from before, it was then easy to play the MP3 of the animal/language combination when an animal piece is placed in a specific country/flag grid box using <a href="https://howlerjs.com/">howler.js</a>. <i>NOTE: Playing MP3 files using howler.js will trigger CORS errors if the web demo is being viewed locally, however howler.js will fall back on HTML audio to play anyway; to avoid CORS issues, simply run the web demo on a local server via Python or other method.</i>
+Using the "what-piece-in-what-space" functionality from before, it was then easy to play the MP3 of the animal/language combination when an animal piece is placed in a specific country/flag grid box using <a href="https://howlerjs.com/">howler.js</a>. <i>NOTE: Playing MP3 files using howler.js will trigger CORS errors if the web demo is being viewed locally, however howler.js will fall back on HTML audio to play anytd3way; to avoid CORS issues, simply run the web demo on a local server via Python or other method.</i>
+
+<h1>Packages/Resources</h1>
+
+<ul>
+<li>d3.js v4.1.1, <a href="https://d3js.org/"></a></li>
+<li>interact.js v1.2.6, <a href="http://interactjs.io/"></a></li>
+<li>howler.js v2.0.1, <a href="https://howlerjs.com/"></a></li>
+<li>flag-icon-css, <a href="http://flag-icon-css.lip.is/"></a></li>
+<li>animal sound mp3's from <a href="https://www.esl-languages.com/en/study-abroad/coffee-time/animal-sounds/index.htm
+"></a></li>
+<li>various animal silhouette images from the internet</li>
+</ul>
 
 <h1>Fin</h1>
 
