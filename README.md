@@ -61,12 +61,12 @@ Using the "what-piece-in-what-space" functionality from before, it was then easy
 <h1>Packages/Resources</h1>
 
 <ul>
-<li>d3.js v4.1.1, <a href="https://d3js.org/"></a></li>
-<li>interact.js v1.2.6, <a href="http://interactjs.io/"></a></li>
-<li>howler.js v2.0.1, <a href="https://howlerjs.com/"></a></li>
-<li>flag-icon-css, <a href="http://flag-icon-css.lip.is/"></a></li>
+<li>d3.js v4.1.1, <a href="https://d3js.org/">https://d3js.org/</a></li>
+<li>interact.js v1.2.6, <a href="http://interactjs.io/">http://interactjs.io/</a></li>
+<li>howler.js v2.0.1, <a href="https://howlerjs.com/">https://howlerjs.com/</a></li>
+<li>flag-icon-css, <a href="http://flag-icon-css.lip.is/">http://flag-icon-css.lip.is/</a></li>
 <li>animal sound mp3's from <a href="https://www.esl-languages.com/en/study-abroad/coffee-time/animal-sounds/index.htm
-"></a></li>
+">https://www.esl-languages.com/en/study-abroad/coffee-time/animal-sounds/index.htm</a></li>
 <li>various animal silhouette images from the internet</li>
 </ul>
 
