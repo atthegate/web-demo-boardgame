@@ -56,5 +56,7 @@ In order to generate a set of different animal/language sounds, the MP3 files fr
 
 Country flags corresponding to the available animals/languages (e.g. Belgian, German, Syrian, etc) were then added to the grid box background images uses SVG flag icons from <a href="https://github.com/lipis/flag-icon-css">https://github.com/lipis/flag-icon-css</a>.
 
-Using the "what-piece-in-what-space" functionality from before, it was then easy to play the MP3 of the animal/language combination when an animal piece is placed in a flag box (using <a href="https://howlerjs.com/">howler.js</a>). <i>NOTE: Playing MP3 files using howler.js will trigger CORS errors if the web demo is being viewed locally, however howler.js will fall back on HTML audio to play anyway; to avoid CORS issues, simply run the web demo on a local server via Python or other method.</i>
+Using the "what-piece-in-what-space" functionality from before, it was then easy to play the MP3 of the animal/language combination when an animal piece is placed in a specific country/flag grid box using <a href="https://howlerjs.com/">howler.js</a>. <i>NOTE: Playing MP3 files using howler.js will trigger CORS errors if the web demo is being viewed locally, however howler.js will fall back on HTML audio to play anyway; to avoid CORS issues, simply run the web demo on a local server via Python or other method.</i>
+
+<h1>Fin</h1>
 
