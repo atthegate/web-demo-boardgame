@@ -42,7 +42,7 @@ Taking the concept of a grid generator, a static "game board" grid of 9 boxes wa
 
 <h1>3. Use Animal Shapes for Game Pieces</h1>
 
-<img src="screenshots/screenshot_boardgame-AnimalShapes.png" height="250">
+<img src="screenshots/screenshot_boardgame-SimpleAnimals.png" height="250">
 
 Next, the SimpleShapes demo was extended to replace the simple shapes with PNG images of animal silhouettes. This extra step is somewhat complicated due to using SVG shapes, specifically the need to use pattern definitions in order to set images as backgrounds of SVG shapes.
 
